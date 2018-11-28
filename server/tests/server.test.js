@@ -5,8 +5,17 @@ const {app} = require('./../server.js');
 
 const {Todo} = require('./../models/todo.js');
 
+const todos = [{
+  text: 'First todo'
+}, {
+  text: 'Second todo'
+}];
+
 beforeEach((done) => {
-  Todo.remove({}).then(() => done());
+  Todo.remove({}).then(() => {
+    Todo.insertMany(todos);
+    done();
+  });
 });
 
 describe('Post /todos' , () => {
@@ -27,7 +36,7 @@ describe('Post /todos' , () => {
         return done(err)
       }
 
-      Todo.find().then((todos) => {
+      Todo.find({text}).then((todos) => {
         expect(todos.length).toBe(1);
         expect(todos[0].text).toBe(text);
         done();
@@ -50,7 +59,7 @@ describe('Post /todos' , () => {
       }
 
       Todo.find().then((todos) => {
-        expect(todos.length).toBe(0);
+        expect(todos.length).toBe(2);
         done();
       }).catch((e) => {
         done(e);
@@ -59,4 +68,16 @@ describe('Post /todos' , () => {
     });
   });
 
+});
+
+describe('GET /todos', ()=> {
+  it('should get all todos' , (done) => {
+    request(app)
+    .get('/todos')
+    .expect(200)
+    .expect((res) => {
+      expect(res.body.todos.length).toBe(2);
+    })
+    .end(done);
+  });
 });
