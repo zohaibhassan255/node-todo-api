@@ -44,9 +44,28 @@ app.get('/todos/:id' , (req , res) => {
       }
       res.status(200).send({todo});
     }).catch((e) => {
-      res.send(400).send(e);
+      res.status(400).send(e);
     });
 
+});
+
+app.delete('/todos/:id' , (req , res) => {
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send('Id is not valid');
+  }
+
+  Todo.findByIdAndRemove(`${id}`).then((todo) => {
+    if (!todo) {
+      return res.status(404).send('Todo not found');
+    }
+
+    res.status(200).send(todo);
+
+  }).catch((e) => {
+    res.status(400).send(e);
+  });
 
 });
 
